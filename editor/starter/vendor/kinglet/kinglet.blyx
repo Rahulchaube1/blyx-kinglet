@@ -1,0 +1,43 @@
+use byterange;
+use suffixrange;
+
+fn kinglet_finite(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value - value == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn kinglet_compute(size: f64, mode: f64, first: f64, last: f64) -> vector {
+    if mode == 0.0 {
+        return [200, 0, size, size];
+    }
+    let mut range = byterange_resolve(size, first, last);
+    if mode == 2.0 {
+        range = suffixrange_resolve(size, first);
+    }
+    if mode > 2.0 || len(range) == 0 {
+        return [];
+    }
+    if at(range, 0) == 0.0 {
+        return [416, 0, 0, size];
+    }
+    [206, at(range, 1), at(range, 2), size]
+}
+
+// Plan a full or single-range HTTP response against a known representation size.
+// Returns [status, body offset, body length, full length]. Mode 0 sends the full body, 1 uses first/last, 2 uses first as a suffix count. Header parsing and multipart ranges belong to the host.
+pub fn kinglet_respond(size: f64, mode: f64, first: f64, last: f64) -> vector {
+    if !(size >= 0.0 && size <= 9007199254740991.0 && size % 1.0 == 0.0) { return []; }
+    if !(mode >= 0.0 && mode <= 9007199254740991.0 && mode % 1.0 == 0.0) { return []; }
+    if !(first >= 0.0 && first <= 9007199254740991.0 && first % 1.0 == 0.0) { return []; }
+    if !(last >= -9007199254740991.0 && last <= 9007199254740991.0 && last % 1.0 == 0.0) { return []; }
+    let result = kinglet_compute(size, mode, first, last);
+    if !kinglet_finite(result) { return []; }
+    result
+}
