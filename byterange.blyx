@@ -1,0 +1,43 @@
+fn byterange_min2(a: f64, b: f64) -> f64 {
+    if a < b {
+        return a;
+    }
+    b
+}
+
+fn byterange_finite(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value - value == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn byterange_compute(size: f64, first: f64, last: f64) -> vector {
+    if last < -1.0 || (last != -1.0 && last < first) {
+        return [];
+    }
+    if first >= size {
+        return [0, 0, 0];
+    }
+    let mut end = size - 1.0;
+    if last >= 0.0 {
+        end = byterange_min2(end, last);
+    }
+    [1, first, end - first + 1.0]
+}
+
+// Resolve a single inclusive HTTP byte range to an offset and length.
+// Returns [satisfiable, offset, length]. Set last to -1 for an open-ended range. A syntactically reversed range is invalid.
+pub fn byterange_resolve(size: f64, first: f64, last: f64) -> vector {
+    if !(size >= 0.0 && size <= 9007199254740991.0 && size % 1.0 == 0.0) { return []; }
+    if !(first >= 0.0 && first <= 9007199254740991.0 && first % 1.0 == 0.0) { return []; }
+    if !(last >= -9007199254740991.0 && last <= 9007199254740991.0 && last % 1.0 == 0.0) { return []; }
+    let result = byterange_compute(size, first, last);
+    if !byterange_finite(result) { return []; }
+    result
+}
