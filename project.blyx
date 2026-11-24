@@ -1,12 +1,15 @@
 use std::cli;
 use console;
+use scale_cli;
 use kinglet;
 
 fn main() {
     let argv = cli_args();
+    if scale_command(argv) { return; }
     let count = args_len(argv);
     if count == 1 && args_at(argv, 0) == "--help" {
         println!("Plan a full or single-range HTTP response against a known representation size.");
+        println!("range PARAMS BYTES SHARD_ELEMENTS FIRST COUNT PART");
         println!("Usage: kinglet size mode first last");
         println!("Vector arguments are comma-separated; use [] for an empty vector.");
         return;

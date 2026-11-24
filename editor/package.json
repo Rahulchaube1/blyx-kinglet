@@ -1,8 +1,8 @@
 {
   "name": "blyx-kinglet",
   "displayName": "Blyx Kinglet",
-  "description": "Plan a full or single-range HTTP response against a known representation size.",
-  "version": "0.1.0",
+  "description": "Plan range requests and map tensor checkpoint slices to exact shard-local bytes in Blyx.",
+  "version": "0.2.0",
   "publisher": "RahulChaube",
   "license": "(MIT OR Apache-2.0)",
   "icon": "logo.png",
@@ -40,7 +40,7 @@
       {
         "id": "kinglet.start",
         "title": "Get started with Kinglet",
-        "description": "Plan a full or single-range HTTP response against a known representation size.",
+        "description": "Plan range requests and map tensor checkpoint slices to exact shard-local bytes in Blyx.",
         "steps": [
           {
             "id": "run",
@@ -48,6 +48,14 @@
             "description": "Create an empty .blyx file, insert blyx-kinglet-demo and choose **Blyx: Run File**.\n[Open the documentation](https://www.blyx-lang.space/packages/kinglet)",
             "media": {
               "markdown": "walkthrough.md"
+            }
+          },
+          {
+            "id": "scale",
+            "title": "Read a checkpoint slice",
+            "description": "Extract the starter. With the documented compiler revision installed, run the scale example task.\n[Open the experiment](https://www.blyx-lang.space/articles/training-in-factors)",
+            "media": {
+              "markdown": "scale.md"
             }
           }
         ]

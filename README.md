@@ -6,16 +6,20 @@ Plan a full or single-range HTTP response against a known representation size. T
 
 An inclusive last byte becomes a read length with a plus one. Handle suffixes, empty resources and unsatisfied offsets explicitly. [IETF RFC 9110, byte ranges](https://www.rfc-editor.org/rfc/rfc9110.html#section-14.1.2)
 
+## Checkpoint slices across shard boundaries
+
+Map a checkpoint tensor slice to exact, shard-local byte ranges for storage or HTTP range readers. [Commands and worked example](https://github.com/Rahulchaube1/blyx-kinglet/blob/v0.2.0/SCALE.md) · [Measurements and source data](https://www.blyx-lang.space/articles/training-in-factors)
+
 ## Editor extension
 
-Install **RahulChaube.blyx-kinglet** to run the worked example and use the framework’s function completions in a Blyx file. Open an empty `.blyx` file, enter `blyx-kinglet-demo`, then choose **Blyx: Run File**. [Editor downloads](https://www.blyx-lang.space/packages/kinglet#editor) · [Download the extension](https://github.com/Rahulchaube1/blyxxxx/releases/download/framework-editors-v0.1.0/blyx-kinglet-0.1.0.vsix) · [Starter with framework source](https://github.com/Rahulchaube1/blyxxxx/releases/download/framework-editors-v0.1.0/blyx-kinglet-starter-0.1.0.zip)
+Install **RahulChaube.blyx-kinglet** to run the worked example and use the framework’s function completions in a Blyx file. Open an empty `.blyx` file, enter `blyx-kinglet-demo`, then choose **Blyx: Run File**. [Editor downloads](https://www.blyx-lang.space/packages/kinglet#editor) · [Download the extension](https://github.com/Rahulchaube1/blyx-kinglet/releases/download/v0.2.0/blyx-kinglet-0.2.0.vsix) · [Starter with framework source](https://github.com/Rahulchaube1/blyx-kinglet/releases/download/v0.2.0/blyx-kinglet-starter-0.2.0.zip)
 
 ## Install and run
 
 Install [Blyx 0.2.1](https://www.blyx-lang.space/download) with a Rust toolchain and host linker for native builds.
 
 ```sh
-git clone --depth 1 --branch v0.1.0 https://github.com/Rahulchaube1/blyx-kinglet.git
+git clone --depth 1 --branch v0.2.0 https://github.com/Rahulchaube1/blyx-kinglet.git
 cd blyx-kinglet
 blyxc native-run example.blyx
 blyxc native-run tests.blyx
@@ -28,7 +32,7 @@ blyxc native-run tests.blyx
 Run this in the directory containing your application's entry file.
 
 ```sh
-git clone --depth 1 --branch v0.1.0 https://github.com/Rahulchaube1/blyx-kinglet.git vendor/kinglet
+git clone --depth 1 --branch v0.2.0 https://github.com/Rahulchaube1/blyx-kinglet.git vendor/kinglet
 ```
 
 ```blyx

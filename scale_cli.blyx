@@ -1,0 +1,36 @@
+use std::cli;
+use std::text;
+use checkpoint_ranges;
+
+fn scale_uint(value: str) -> i64 {
+    let mut s = value; let mut n = 0;
+    if s == "" { stderr_line("Expected a nonnegative decimal integer"); process_exit(2); }
+    while s != "" {
+        let mut d = 0;
+        while d < 10 && !text_starts(s,int_text(d)) { d += 1; }
+        if d == 10 || n > (9223372036854775807-d)/10 { stderr_line("Expected a nonnegative i64"); process_exit(2); }
+        n = n*10+d; s = text_after(s,int_text(d));
+    }
+    n
+}
+
+fn scale_need(ok: bool) { if !ok { stderr_line("Invalid arguments. See --help"); process_exit(2); } }
+
+pub fn scale_command(argv: arglist) -> bool {
+    if args_len(argv) == 0 { return false; }
+    let cmd = args_at(argv,0);
+    if cmd == "--version" { println!("kinglet 0.2.0"); return true; }
+    if cmd != "range" { return false; }
+    scale_need(args_len(argv) == 7);
+    let total = scale_uint(args_at(argv,1)); let bytes = scale_uint(args_at(argv,2)); let shard = scale_uint(args_at(argv,3)); let first = scale_uint(args_at(argv,4)); let count = scale_uint(args_at(argv,5)); let part = scale_uint(args_at(argv,6));
+    let pieces = kinglet_checkpoint_range(total,bytes,shard,first,count,part,0);
+    if pieces < 0 || (pieces == 0 && part > 0) || (pieces > 0 && part >= pieces) { stderr_line("Invalid tensor slice or shard part"); process_exit(2); }
+    if pieces == 0 { println!("{\"parts\":0}"); return true; }
+    let file = kinglet_checkpoint_range(total,bytes,shard,first,count,part,1);
+    let start = kinglet_checkpoint_range(total,bytes,shard,first,count,part,2);
+    let size = kinglet_checkpoint_range(total,bytes,shard,first,count,part,3);
+    print!("{\"parts\":"); print!(pieces); print!(",\"shard\":"); print!(file);
+    print!(",\"first_byte\":"); print!(start); print!(",\"length\":"); print!(size);
+    print!(",\"last_byte\":"); print!(start+(size-1)); println!("}");
+    true
+}

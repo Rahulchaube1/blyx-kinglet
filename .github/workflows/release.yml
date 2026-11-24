@@ -1,0 +1,79 @@
+name: Release Kinglet
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: linux-x64, file: kinglet }
+          - { os: windows-latest, target: windows-x64, file: kinglet.exe }
+          - { os: macos-latest, target: macos-arm64, file: kinglet }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install --locked --git https://github.com/Rahulchaube1/blyxxxx --rev 120d6b6ec6df09ff018d7c18752fb3297b5e629d blyxc
+      - run: blyxc native-run tests.blyx
+      - run: blyxc native-run scale_example.blyx
+      - name: Build and package the native command
+        shell: bash
+        run: |
+          mkdir -p stage dist
+          blyxc build project.blyx -o stage/${{ matrix.file }}
+          cp *.blyx Blyx.toml README.md SCALE.md LICENSE-* stage/
+          if [[ -d fixtures ]]; then cp -r fixtures stage/; fi
+          cd stage
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            7z a ../dist/kinglet-${{ matrix.target }}.zip *
+          else
+            tar -czf ../dist/kinglet-${{ matrix.target }}.tar.gz *
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kinglet-${{ matrix.target }}
+          path: dist/*
+  editor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Package the editor and source starter
+        shell: bash
+        run: |
+          set -eu
+          version=$(jq -r .version editor/package.json)
+          mkdir -p dist
+          (cd editor && npx --yes @vscode/vsce@4.1.1 package --no-dependencies --out "../dist/blyx-kinglet-$version.vsix")
+          (cd editor/starter && zip -qr "../../dist/blyx-kinglet-starter-$version.zip" .)
+          unzip -t "dist/blyx-kinglet-$version.vsix"
+          unzip -p "dist/blyx-kinglet-$version.vsix" extension/logo.png | cmp - editor/logo.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blyx-kinglet-editor
+          path: dist/*
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [native, editor]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - run: cd dist && sha256sum *.tar.gz *.zip *.vsix > SHA256SUMS
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          body: |
+            Map a checkpoint tensor slice to exact, shard-local byte ranges for storage or HTTP range readers.
+            [Release guide](https://github.com/Rahulchaube1/blyx-kinglet/blob/v0.2.0/SCALE.md) · [Study and raw data](https://www.blyx-lang.space/articles/training-in-factors)

@@ -170,5 +170,22 @@
     "prefix": "blyx-kinglet-kinglet_respond",
     "body": "kinglet_respond(${1:size}, ${2:mode}, ${3:first}, ${4:last})$0",
     "description": "Returns [status, body offset, body length, full length]. Mode 0 sends the full body, 1 uses first/last, 2 uses first as a suffix count. Header parsing and multipart ranges belong to the host."
+  },
+  "Kinglet — Read a checkpoint slice": {
+    "prefix": "blyx-kinglet-scale",
+    "isFileTemplate": true,
+    "body": [
+      "use vendor::kinglet::checkpoint_ranges;",
+      "",
+      "fn main() {",
+      "    let elements = 2199023255552;",
+      "    let first = 1099511627774;",
+      "    let shard = 1073741824;",
+      "    println!(kinglet_checkpoint_range(elements,2,shard,first,5,0,0));",
+      "    println!(kinglet_checkpoint_range(elements,2,shard,first,5,0,3));",
+      "    println!(kinglet_checkpoint_range(elements,2,shard,first,5,1,3));",
+      "}"
+    ],
+    "description": "Run inside the Kinglet starter using the pinned native compiler."
   }
 }

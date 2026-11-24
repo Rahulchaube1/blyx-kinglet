@@ -1,0 +1,23 @@
+// A tensor is partitioned into files of shard_elements consecutive parameters.
+// Byte offsets are relative to an individual headerless shard. All bounds are
+// i64 and queries use [first, first+count). Field 0 returns the piece count.
+pub fn kinglet_checkpoint_range(elements: i64, element_bytes: i64, shard_elements: i64, first: i64, count: i64, part: i64, field: i64) -> i64 {
+    if elements < 0 || element_bytes <= 0 || shard_elements <= 0 || first < 0 || first > elements || count < 0 || count > elements-first || part < 0 || field < 0 || field > 3 { return -1; }
+    let mut longest = shard_elements;
+    if longest > elements { longest = elements; }
+    if longest > 9223372036854775807/element_bytes { return -1; }
+    if count == 0 { if field == 0 { return 0; } return -1; }
+    let initial_shard = first/shard_elements;
+    let final_shard = (first+(count-1))/shard_elements;
+    let pieces = final_shard-initial_shard+1;
+    if field == 0 { return pieces; }
+    if part >= pieces { return -1; }
+    let shard = initial_shard+part;
+    if field == 1 { return shard; }
+    let mut begin = 0;
+    if part == 0 { begin = first%shard_elements; }
+    if field == 2 { return begin*element_bytes; }
+    let mut end = shard_elements;
+    if shard == final_shard { end = ((first+(count-1))%shard_elements)+1; }
+    (end-begin)*element_bytes
+}
